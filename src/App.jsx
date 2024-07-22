@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 
 function App() {
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState(1);
   const [from, setFrom] = useState("USD");
   const [to, setTo] = useState("INR");
   const [convertedAmount, setConvertedAmount] = useState(0);
