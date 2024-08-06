@@ -1,34 +1,36 @@
-import { useState } from "react";
-import { useEffect } from "react";
+import { useState,useEffect } from "react";
 
 function App() {
-  const [amount, setAmount] = useState(1);
-  const [from, setFrom] = useState("USD");
-  const [to, setTo] = useState("INR");
-  const [convertedAmount, setConvertedAmount] = useState(0);
-  const [Data, setData] = useState({ date: Date() });
-  const [options, setoptions] = useState(["USD", "INR"]);
-  const obj={
-    "USD":"United states",
-    "INR":"Indian Rupees"
-  }
+  const [amount,setAmount] = useState(1);
+  const [from,setFrom] = useState("USD");
+  const [to,setTo] = useState("INR");
+  const [convertedAmount,setConvertedAmount] = useState(0);
+  const [data,setData] = useState({ date: Date() });
+  const [options,setOptions] = useState(["USD","INR"]);
+  const obj = {
+    "USD": "United States Dollar",
+    "INR": "Indian Rupee"
+  };
   const [fullname,setFullname] = useState(obj);
+
   const fetchAllName = async () => {
     try {
       const response = await fetch(
         "https://openexchangerates.org/api/currencies.json"
       );
       const result = await response.json();
-      const AllName = Object.keys(result);
-      // const FullName = Object.values(result);
-      setFullname(result)
-      setoptions(AllName);
+      const allName = Object.keys(result);
+      setFullname(result);
+      setOptions(allName);
     } catch {
       console.error("Error fetching data");
     }
   };
-  fetchAllName();
-  // console.log(fullname);
+
+  useEffect(() => {
+    fetchAllName();
+  },[]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -38,92 +40,78 @@ function App() {
         const result = await response.json();
         setData(result);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching data:",error);
       }
     };
     fetchData();
-  }, [amount, from, to, setConvertedAmount,setData]);
+  },[from]);
+
 
   useEffect(() => {
-    if (Data && Data.base == from) {
-      console.log(Number(amount) * Number(Data["rates"][to]));
-      setConvertedAmount(amount * Data["rates"][to]);
+    if (data && data.base === from) {
+      setConvertedAmount((amount * data["rates"][to]).toFixed(2));
     } else {
       setConvertedAmount(0);
     }
-  }, [amount, from, to, convertedAmount,Data]);
+  },[amount,from,to,data]);
 
   return (
-    <>
-      <div className="flex justify-center items-center w-full">
-        <div className="text-white bg-orange-700 rounded-full flex justify-center mt-10 text-4xl p-2 w-1/2">
-          Currency Converter
-        </div>
+    <div className="w-full min-h-screen bg-slate-400 flex flex-col items-center p-4">
+      <div className="text-white bg-slate-800 rounded-full flex justify-center mt-10 text-3xl p-2 w-full max-w-md text-center">
+        Currency Converter
       </div>
-      <div className="flex justify-center">
-        <div className="mb-5 mt-5 bg-gray-200 text-red-950 max-w-5xl font-bold text-l text-center">
-          {Data ? `Last updated on ${Data.date}` : `Wait data is not updated`}
-        </div>
+      <div className="mb-5 mt-5 bg-gray-200 text-red-950 max-w-md font-bold text-lg text-center">
+        {data ? `Last updated on ${data.date}` : `Data is not updated`}
       </div>
 
-      <div className="w-full h-[100px] bg-slate-400 flex justify-center rounded-full gap-5">
-        
-        
-        <div className="bg-blue-500 flex items-center rounded-full p-3 gap-2">
-          <label htmlFor="From" className="text-xl">
+      <div className="w-full max-w-md bg-slate-400 flex flex-col gap-4 p-4 rounded-xl">
+        <div className="bg-blue-500 flex flex-col p-4 rounded-xl">
+          <label htmlFor="From" className="text-xl text-white mb-2">
             {from}
           </label>
           <input
-            type="Number"
+            type="number"
             value={amount}
-            className="m-3 rounded-full  p-2"
-            onChange={(e) => {
-              setAmount(e.target.value);
-            }}
+            onChange={(e) => setAmount(e.target.value)}
+            className="m-2 rounded-full p-2 text-center"
           />
           <select
             value={from}
-            onChange={(e) => {
-              setFrom(e.target.value);
-            }}
-            className="rounded-full bg-orange-500 h-8 p-1"
+            onChange={(e) => setFrom(e.target.value)}
+            className="rounded-full bg-slate-800 text-white p-2"
           >
             {options.map((e) => (
               <option key={e} value={e}>
-                {" "}
                 {`${e} ${fullname[e]}`}
               </option>
             ))}
           </select>
         </div>
 
-        <div className="bg-blue-500 flex items-center rounded-full p-3 gap-2">
-          <label htmlFor="to" className="text-xl">
+        <div className="bg-blue-500 flex flex-col p-4 rounded-xl">
+          <label htmlFor="To" className="text-xl text-white mb-2">
             {to}
           </label>
           <input
-            type="Number"
+            type="number"
             value={convertedAmount}
             readOnly
-            className="m-3 rounded-full p-2 "
+            className="m-2 rounded-full p-2 text-center"
           />
           <select
             value={to}
-            className="rounded-full bg-orange-500 h-8 p-1 "
-            onChange={(e) => {
-              setTo(e.target.value);
-            }}
+            onChange={(e) => setTo(e.target.value)}
+            className="rounded-full bg-slate-800 text-white p-2"
           >
             {options.map((e) => (
               <option key={e} value={e}>
-                {" "}
                 {`${e} ${fullname[e]}`}
               </option>
             ))}
           </select>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
